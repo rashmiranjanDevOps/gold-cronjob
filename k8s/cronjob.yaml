@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: gold-price-cronjob
+spec:
+  schedule: "*/2 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: gold-container
+            image: rashmiranjandevops/gold-cronjob:latest   # Docker Hub image
+
+            env:
+            - name: SNS_TOPIC_ARN
+              value: "arn:aws:sns:us-east-1:816069171608:gold-rate-topic"
+
+            - name: AWS_REGION
+              value: "us-east-1"
+
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: AWS_ACCESS_KEY_ID
+
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: AWS_SECRET_ACCESS_KEY
+
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: API_KEY
+
+          restartPolicy: OnFailure
